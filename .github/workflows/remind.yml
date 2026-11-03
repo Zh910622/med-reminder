@@ -1,0 +1,45 @@
+name: medication-reminder
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # 每 5 分钟检查一次（GitHub 可能有几分钟延迟，正常）
+  workflow_dispatch: {}      # 支持在 Actions 页面手动运行，用于测试
+
+permissions:
+  contents: write
+
+concurrency:
+  group: med-reminder
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 检查到点未吃并推送
+        run: node scripts/check-reminders.mjs
+        env:
+          DATA_PASSPHRASE: ${{ secrets.DATA_PASSPHRASE }}
+          WXPUSHER_TOKEN: ${{ secrets.WXPUSHER_TOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+
+      - name: 提交提醒标记（防止重复推送）
+        run: |
+          git config user.name "med-reminder-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.enc
+          if git diff --cached --quiet; then
+            echo "无变化，不提交"
+          else
+            git commit -m "chore: 更新提醒标记"
+            for i in 1 2 3; do
+              if git push; then break; fi
+              echo "push 失败，重试 $i"
+              git pull --rebase origin "${GITHUB_REF_NAME}" || true
+            done
+          fi
