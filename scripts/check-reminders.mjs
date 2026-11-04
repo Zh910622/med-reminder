@@ -36,6 +36,7 @@ async function main() {
   const token = process.env.WXPUSHER_TOKEN;
   const uid = process.env.WXPUSHER_UID;
   if (!pass || !token || !uid) { console.log('缺少 Secrets（DATA_PASSPHRASE / WXPUSHER_TOKEN / WXPUSHER_UID），跳过'); return; }
+  console.log('数据密码指纹:', crypto.createHash('sha256').update(pass).digest('hex').slice(0, 8), '（应与页面同步设置里显示的「密码指纹」一致）');
   if (!existsSync(ENC_FILE)) { console.log('data.enc 不存在：还没在页面上保存过数据，跳过'); return; }
 
   const data = decrypt(readFileSync(ENC_FILE, 'utf8'), pass);
