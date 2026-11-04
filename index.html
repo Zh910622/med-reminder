@@ -58,7 +58,7 @@
 
   ul{list-style:none}
   li.med{position:relative}
-  li.med .name{font-size:16px;font-weight:700;padding-right:30px}
+  li.med .name{font-size:16px;font-weight:700;padding-right:30px;cursor:pointer}
   li.med .sub{font-size:12.5px;color:var(--sub);margin-top:3px}
   li.med .del{position:absolute;top:12px;right:10px;width:28px;height:28px;border:none;border-radius:8px;
     background:transparent;color:#b9c2be;font-size:20px;line-height:1;cursor:pointer}
@@ -112,6 +112,7 @@
   .btn-ghost{background:#f0f4f1;color:var(--text)}
   .btn-danger{background:#fdf0f0;color:var(--danger)}
   #cfgStatus{font-size:12px;margin-top:10px;color:var(--sub);word-break:break-all}
+  #cfgFp{font-size:11px;color:var(--sub);margin-top:6px;letter-spacing:1px}
 </style>
 </head>
 <body>
@@ -167,6 +168,7 @@
   <input id="cfgRepo" placeholder="yourname/med-reminder" autocomplete="off">
   <label>数据密码（与仓库 Secrets 里的 DATA_PASSPHRASE 一致）</label>
   <input id="cfgPass" type="password" placeholder="自定义一个不会忘的密码" autocomplete="off">
+  <div id="cfgFp"></div>
   <div class="btns">
     <button class="btn-main" id="cfgSave">保存并同步</button>
     <button class="btn-ghost" id="cfgSync">立即同步</button>
@@ -222,7 +224,7 @@
       total+=m.times; done+=c;
       html+='<li class="card med'+(all?' done':'')+'">'
          +  '<button class="del" data-del="'+m.id+'" title="删除">&times;</button>'
-         +  '<div class="name">'+esc(m.name)+'</div>'
+         +  '<div class="name" data-editname="'+m.id+'" title="点击修改名称">'+esc(m.name)+'</div>'
          +  '<div class="sub">每天 '+m.times+' 次 · 今日 '+c+'/'+m.times+(all?' · 已完成':'')+'</div>'
          +  '<div class="dots">';
       for(var i=0;i<m.times;i++){
@@ -263,6 +265,16 @@
     Object.keys(records).forEach(function(k){ delete records[k][id]; });
     saveLocal(); render(); schedulePush(); toast('已删除 '+m.name);
   }
+  function editName(id){
+    var m=meds.filter(function(x){return x.id===id;})[0]; if(!m) return;
+    var v=prompt('修改药品名称',m.name);
+    if(v===null) return;
+    v=v.trim();
+    if(!v){ toast('名称不能为空'); return; }
+    if(v===m.name) return;
+    m.name=v.slice(0,20);
+    saveLocal(); render(); schedulePush(); toast('已改名为 '+m.name);
+  }
   function editTime(id,idx){
     var m=meds.filter(function(x){return x.id===id;})[0]; if(!m) return;
     var cur=(m.slots&&m.slots[idx])||'08:00';
@@ -289,6 +301,8 @@
     if(dot){ toggle(dot.getAttribute('data-id'),parseInt(dot.getAttribute('data-slot'),10)); return; }
     var st=e.target.closest('.stime');
     if(st){ var p=st.getAttribute('data-stime').split('|'); editTime(p[0],parseInt(p[1],10)); return; }
+    var nm=e.target.closest('.name');
+    if(nm){ editName(nm.getAttribute('data-editname')); return; }
     var del=e.target.closest('.del');
     if(del){ removeMed(del.getAttribute('data-del')); }
   });
@@ -315,6 +329,17 @@
     return JSON.parse(td.decode(pt));
   }
   function ghHeaders(){ return {Authorization:'Bearer '+cfg.token,Accept:'application/vnd.github+json'}; }
+  // 密码指纹：密码哈希前 8 位，用于和 Actions 日志里的「数据密码指纹」肉眼比对
+  async function passFp(p){
+    if(!p) return '';
+    var h=new Uint8Array(await crypto.subtle.digest('SHA-256',te.encode(p))),s='';
+    for(var i=0;i<4;i++) s+=('0'+h[i].toString(16)).slice(-2);
+    return s;
+  }
+  async function updateFp(){
+    var fp=await passFp(document.getElementById('cfgPass').value);
+    document.getElementById('cfgFp').textContent=fp?('密码指纹：'+fp+'（应与 Actions 运行日志里的「数据密码指纹」一致）'):'';
+  }
   var ghSha=null;
   async function ghGet(){
     var r=await fetch('https://api.github.com/repos/'+cfg.repo+'/contents/data.enc',{headers:ghHeaders(),cache:'no-store'});
@@ -363,7 +388,10 @@
       catch(e){
         // 冲突：拉远端合并后重试一次
         var g=await ghGet(); ghSha=g.sha;
-        if(g.raw) mergeRemote(await decStr(g.raw,cfg.pass));
+        if(g.raw){
+          try{ mergeRemote(await decStr(g.raw,cfg.pass)); }
+          catch(e2){ /* 远端是其他密码加密的数据：直接覆盖 */ }
+        }
         await ghPut();
       }
       lastSync=pad(new Date().getHours())+':'+pad(new Date().getMinutes());
@@ -388,7 +416,14 @@
         if(meds.length){ await ghPut(); lastSync=pad(new Date().getHours())+':'+pad(new Date().getMinutes()); setChip('ok',lastSync); }
         else setChip('ok','空仓库');
       }else{
-        var obj=await decStr(g.raw,cfg.pass);
+        var obj;
+        try{ obj=await decStr(g.raw,cfg.pass); }
+        catch(e2){
+          if(confirm('远端数据用当前的数据密码解不开（之前可能用的是别的密码）。\n\n点「确定」：用本设备当前的数据覆盖远端；\n点「取消」：先检查密码是否输入正确。')){
+            await ghPut(); lastSync=pad(new Date().getHours())+':'+pad(new Date().getMinutes()); saveLocal(); setChip('ok',lastSync); toast('已用当前数据覆盖远端');
+          }else{ setChip('err'); toast('同步失败：远端数据与当前密码不一致'); }
+          syncing=false; return;
+        }
         meds=obj.meds||[]; records=obj.records||{}; reminded=obj.reminded||{};
         meds.forEach(function(m){ if(!m.slots||!m.slots.length) m.slots=defaultSlots(m.times); });
         saveLocal(); render();
@@ -406,12 +441,14 @@
     document.getElementById('cfgToken').value=cfg?cfg.token:'';
     document.getElementById('cfgRepo').value=cfg?cfg.repo:'';
     document.getElementById('cfgPass').value=cfg?cfg.pass:'';
+    updateFp();
     $cst.textContent=cfg?('当前状态：'+$chip.textContent.replace('同步：','')):'';
     $mask.classList.add('show'); $modal.classList.add('show');
   }
   function closeCfg(){ $mask.classList.remove('show'); $modal.classList.remove('show'); }
   $chip.addEventListener('click',openCfg);
   $mask.addEventListener('click',closeCfg);
+  document.getElementById('cfgPass').addEventListener('input',updateFp);
   document.getElementById('cfgSave').addEventListener('click',function(){
     var token=document.getElementById('cfgToken').value.trim(),
         repo=document.getElementById('cfgRepo').value.trim(),
