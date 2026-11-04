@@ -91,9 +91,55 @@ async function main() {
     }
   }
   if (changed) {
-    writeFileSync(ENC_FILE, encrypt(data, pass));
-    console.log('已写入提醒标记');
+    await uploadFlags(data, pass);
   }
+}
+
+// 把"已提醒"标记用 GitHub API 上传（拉最新→合并→上传，带重试，避免与页面同步的 git 冲突）
+async function uploadFlags(data, pass) {
+  writeFileSync(ENC_FILE, encrypt(data, pass)); // 本地留存，便于排查
+  const repo = process.env.GITHUB_REPOSITORY;
+  const tk = process.env.GITHUB_TOKEN;
+  if (!repo || !tk) { console.log('缺少 GITHUB_TOKEN，提醒标记未上传（下次可能重复提醒一次）'); return; }
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    let sha = null, remote = null;
+    const gr = await fetch(`https://api.github.com/repos/${repo}/contents/data.enc?ref=main`, {
+      headers: { Authorization: 'Bearer ' + tk, Accept: 'application/vnd.github+json' },
+    });
+    if (gr.ok) {
+      const j = await gr.json();
+      sha = j.sha;
+      const raw = Buffer.from(String(j.content).replace(/\n/g, ''), 'base64').toString('utf8');
+      try { remote = decrypt(raw, pass); } catch { remote = null; }
+    } else if (gr.status !== 404) {
+      console.log('读取远端 data.enc 失败 (' + gr.status + ')，标记未上传');
+      return;
+    }
+    if (remote) {
+      // 合并页面在检查期间产生的打卡数据（按 天/药 取最大次数），reminded 取并集
+      data.records = data.records || {};
+      remote.records = remote.records || {};
+      for (const d of Object.keys(remote.records)) {
+        const m = Object.assign({}, data.records[d] || {});
+        for (const k of Object.keys(remote.records[d])) m[k] = Math.max(m[k] || 0, remote.records[d][k]);
+        data.records[d] = m;
+      }
+      data.reminded = Object.assign({}, remote.reminded || {}, data.reminded || {});
+    }
+    const put = await fetch(`https://api.github.com/repos/${repo}/contents/data.enc`, {
+      method: 'PUT',
+      headers: { Authorization: 'Bearer ' + tk, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'chore: 更新提醒标记',
+        content: Buffer.from(encrypt(data, pass)).toString('base64'),
+        branch: 'main',
+        ...(sha ? { sha } : {}),
+      }),
+    });
+    if (put.ok) { console.log('提醒标记已上传（API 方式，无冲突）'); return; }
+    console.log('标记上传失败 (' + put.status + ')，重试 ' + attempt + '/3');
+  }
+  console.log('标记上传三次均失败——下次运行可能重复推送一次，不影响提醒功能');
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });
