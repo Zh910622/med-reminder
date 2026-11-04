@@ -7,7 +7,7 @@ const ENC_FILE = 'data.enc';
 const GRACE_MIN = 15; // 到点后宽限分钟数，仍未打卡才提醒
 
 function deriveKey(pass, salt) {
-  return crypto.pbkdf2Sync(pass, salt, 150000, 32, 'sha256');
+  return crypto.pbkdf2Sync(pass, salt, 100000, 32, 'sha256');
 }
 function decrypt(text, pass) {
   const raw = Buffer.from(text.trim().replace(/^ENC1:/, ''), 'base64');
