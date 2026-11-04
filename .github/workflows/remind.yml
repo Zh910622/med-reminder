@@ -1,7 +1,7 @@
 name: medication-reminder
 on:
-  schedule:
-    - cron: "*/5 * * * *"   # 每 5 分钟检查一次（GitHub 可能有几分钟延迟，正常）
+  #description: schedule:
+  #description:   - cron: "*/5 * * * *"   # 每 5 分钟检查一次（GitHub 可能有几分钟延迟，正常）
   workflow_dispatch: {}      # 支持在 Actions 页面手动运行，用于测试
 
 permissions:
