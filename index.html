@@ -84,6 +84,107 @@
   .h.partial{background:#b7e2cc;color:#14603c}
   .h.today{outline:2px solid #ffe08a;outline-offset:-1px}
 
+  /* ============ 月历视图 ============ */
+  .calendar{margin-top:4px}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cal-title{font-size:15px;font-weight:700}
+  .cal-tabs{display:flex;gap:4px;background:#f1f5f3;padding:3px;border-radius:99px}
+  .cal-tab{border:none;background:transparent;font-size:12px;color:var(--sub);
+    padding:5px 10px;border-radius:99px;cursor:pointer}
+  .cal-tab.on{background:#fff;color:var(--accent);font-weight:600;
+    box-shadow:0 1px 3px rgba(0,0,0,.08)}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+  .cal-cell{aspect-ratio:1/1;border-radius:8px;background:#eef2ef;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:11px;color:#9aa8a1;cursor:pointer;transition:transform .12s}
+  .cal-cell:active{transform:scale(.92)}
+  .cal-cell .d-num{font-weight:700;font-size:13px;color:var(--text)}
+  .cal-cell .d-week{font-size:10px;opacity:.7;margin-top:1px}
+  .cal-cell.none{background:#f1f4f2;color:#b5bfb9}
+  .cal-cell.none .d-num{color:#b5bfb9}
+  .cal-cell.partial{background:#d6efde;color:#14603c}
+  .cal-cell.partial .d-num{color:#14603c}
+  .cal-cell.full{background:var(--accent);color:#fff}
+  .cal-cell.full .d-num{color:#fff}
+  .cal-cell.today{outline:2px solid #ffb648;outline-offset:-1px}
+  .cal-cell.future{opacity:.4;cursor:default}
+  .cal-cell.future:active{transform:none}
+
+  .cal-legend{margin-top:12px;display:flex;justify-content:center;gap:14px;font-size:11px;color:var(--sub)}
+  .lg-dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+  .lg-dot.full{background:var(--accent)}
+  .lg-dot.partial{background:#b7e2cc}
+  .lg-dot.none{background:#eef2ef;border:1px solid #e3e8e5}
+
+  /* 某天的详情浮层 */
+  #dayPop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);
+    background:#fff;border-radius:14px;padding:18px 20px;min-width:260px;max-width:90vw;
+    box-shadow:0 12px 30px rgba(0,0,0,.18);z-index:100;display:none}
+  #dayPop.show{display:block}
+  #dayPop h4{font-size:14px;margin-bottom:10px;color:var(--sub);font-weight:500}
+  #dayPop h4 b{color:var(--text);font-size:15px;font-weight:700}
+  #dayPop .p-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed var(--line);
+    font-size:14px}
+  #dayPop .p-row:last-child{border-bottom:none}
+  #dayPop .p-row .p-name{font-weight:600}
+  #dayPop .p-row .p-done{color:var(--accent);font-weight:700}
+  #dayPop .p-row .p-partial{color:#c98a2a;font-weight:700}
+  #dayPop .p-row .p-none{color:#b5bfb9}
+  #dayPop .p-close{display:block;margin:14px auto 0;border:none;background:var(--accent);color:#fff;
+    font-size:13px;padding:7px 24px;border-radius:99px;cursor:pointer}
+
+  /* ============ 卡牌收集入口 ============ */
+  a.card-entry{display:flex;align-items:center;gap:11px;text-decoration:none;color:inherit;
+    background:linear-gradient(135deg,#fffdf6,#fff4d8);border:1px solid #f0e0b8}
+  a.card-entry:active{transform:scale(.99)}
+  .ce-ico{width:42px;height:42px;border-radius:12px;flex:none;font-size:19px;font-weight:700;
+    background:linear-gradient(135deg,#d4af3a,#8a6d1a);color:#fff8e1;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+  .ce-body{flex:1;min-width:0}
+  .ce-title{font-size:15px;font-weight:700;color:#7a5c00}
+  .ce-sub{font-size:11.5px;color:#a68d4a;margin-top:2px}
+  .ce-prog{font-size:13px;font-weight:700;color:#8a6d1a;flex:none;letter-spacing:.5px}
+  .ce-arrow{color:#d4af3a;font-size:18px;flex:none;line-height:1}
+
+  /* 卡牌样式（首页抽卡弹窗 与 卡册页共用） */
+  .hw-card{position:relative;border-radius:14px;padding:14px 10px 12px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    border:2px solid transparent;overflow:hidden;text-align:center}
+  .hw-card.legend{background:linear-gradient(160deg,#fffbe8,#ffe9b0 55%,#eed07a);
+    border-color:#c9a227;box-shadow:0 6px 16px rgba(150,110,0,.22)}
+  .hw-card.epic{background:linear-gradient(160deg,#f2f9fd,#d3e8f6 55%,#aad4ea);
+    border-color:#4a8fb5;box-shadow:0 6px 16px rgba(40,90,130,.2)}
+  .hw-card .hw-rank{position:absolute;top:5px;left:8px;font-size:10px;opacity:.55}
+  .hw-card .hw-star{font-size:10.5px;letter-spacing:1px;margin-top:2px}
+  .hw-card .hw-nick{font-size:22px;font-weight:800;letter-spacing:2px;line-height:1.15}
+  .hw-card .hw-name{font-size:12px;letter-spacing:1px}
+  .hw-card.legend .hw-star{color:#8a6d1a}
+  .hw-card.legend .hw-nick{color:#43310a}
+  .hw-card.legend .hw-name{color:#8a7340}
+  .hw-card.epic .hw-star{color:#2f6d92}
+  .hw-card.epic .hw-nick{color:#123d57}
+  .hw-card.epic .hw-name{color:#3f6b84}
+
+  /* 抽卡弹窗 */
+  #cardPop{position:fixed;inset:0;background:rgba(24,18,6,.74);z-index:120;display:none;
+    align-items:center;justify-content:center;padding:26px}
+  #cardPop.show{display:flex}
+  .cp-inner{width:100%;max-width:300px;text-align:center}
+  .cp-tip{color:#ffe9a8;font-size:12.5px;letter-spacing:2px;margin-bottom:14px}
+  #cpCardBox .hw-card{animation:cpIn .5s cubic-bezier(.2,1.4,.4,1);
+    padding:20px 12px 18px;border-radius:16px}
+  #cpCardBox .hw-nick{font-size:30px}
+  @keyframes cpIn{from{transform:scale(.55) rotateY(70deg);opacity:0}
+    to{transform:scale(1) rotateY(0);opacity:1}}
+  .cp-btns{display:flex;gap:9px;margin-top:16px}
+  .cp-btn{flex:1;border:none;border-radius:99px;padding:10px 0;font-size:13.5px;
+    cursor:pointer;font-weight:600;text-align:center;text-decoration:none;line-height:1.4}
+  .cp-btn.main{background:linear-gradient(135deg,#d4af3a,#a8871f);color:#fff}
+  .cp-btn.ghost{background:rgba(255,255,255,.16);color:#ffeec0}
+  .cp-hint{margin-top:11px;font-size:11.5px;color:#d9c48a}
+
   .empty{text-align:center;color:var(--sub);font-size:14px;padding:34px 0;display:none}
   .empty.show{display:block}
 
@@ -155,9 +256,52 @@
   <ul id="medList"></ul>
   <div class="empty" id="empty">还没有添加药品<br>在上方输入名称，选择每天的服用次数即可</div>
 
+  <!-- 月历视图：近 N 天打卡概览 -->
+  <section id="calHolder" class="card calendar">
+    <div class="cal-head">
+      <div class="cal-title">打卡日历</div>
+      <div class="cal-tabs">
+        <button class="cal-tab" data-days="7">近7天</button>
+        <button class="cal-tab" data-days="14">近14天</button>
+        <button class="cal-tab on" data-days="30">近30天</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span class="lg-dot full"></span>全部完成
+      <span class="lg-dot partial"></span>部分完成
+      <span class="lg-dot none"></span>未打卡
+    </div>
+  </section>
+
+  <!-- 卡牌收集入口 -->
+  <a class="card card-entry" href="cards.html">
+    <div class="ce-ico">豪</div>
+    <div class="ce-body">
+      <div class="ce-title">梁山卡牌</div>
+      <div class="ce-sub">每种药今日吃完，各抽一张好汉卡</div>
+    </div>
+    <div class="ce-prog" id="ceProg">0/108</div>
+    <div class="ce-arrow">›</div>
+  </a>
+
   <footer>到服药时间 15 分钟后仍未打卡，会自动推送到微信（需完成云同步配置）<br>数据保存在本机，配置云同步后加密备份到你的 GitHub 仓库</footer>
 </div>
 
+<!-- 抽卡弹窗 -->
+<div id="cardPop">
+  <div class="cp-inner">
+    <div class="cp-tip" id="cpTip">今日已吃完 · 获得好汉卡</div>
+    <div id="cpCardBox"></div>
+    <div class="cp-btns">
+      <button class="cp-btn main" id="cpClose">收下</button>
+      <a class="cp-btn ghost" href="cards.html">打开卡册</a>
+    </div>
+    <div class="cp-hint" id="cpHint"></div>
+  </div>
+</div>
+
+<div id="dayPop"></div>
 <div id="mask"></div>
 <div id="cfgModal">
   <h3>云同步设置</h3>
@@ -179,13 +323,17 @@
 
 <div id="toast"></div>
 
+<script src="heroes.js"></script>
 <script>
 (function(){
   var LS_MEDS='medcheck.meds', LS_REC='medcheck.records', LS_REM='medcheck.reminded', LS_CFG='medsync.cfg';
+  var LS_CARDS='medcheck.cards', LS_DRAW='medcheck.carddraw';
+  var HEROES=window.HEROES||[];     // 水浒108将（来自 heroes.js）
   var meds=load(LS_MEDS,[]);        // [{id,name,times,slots:['08:00',...]}]
   var records=load(LS_REC,{});      // { 'YYYY-MM-DD': { medId: 已服次数 } }
   var reminded=load(LS_REM,{});     // { date: { 'medId-slotIdx': true } } 由服务端写入，本地只透传
   var cfg=load(LS_CFG,null);        // {token, repo, pass}
+  var viewDays=30;                  // 月历视图的天数：7/14/30
 
   function load(k,d){ try{ var v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } }
   function saveLocal(){
@@ -249,7 +397,165 @@
     $allDone.classList.toggle('show',meds.length>0&&done>=total);
     $num.textContent=done+'/'+total;
     $bar.style.width=(total?(done/total*100):0)+'%';
+    renderCalendar();
+    checkDrawCard();
+    updateCardEntry();
   }
+
+  // ============ 月历视图 ============
+  function renderCalendar(){
+    var $grid=document.getElementById('calGrid');
+    var html='';
+    var now=new Date(); now.setHours(0,0,0,0);
+    for(var off=viewDays-1;off>=0;off--){
+      var d=new Date(now.getTime()-off*86400000);
+      var k=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+      var total=0,done=0;
+      meds.forEach(function(m){
+        total+=m.times;
+        done+=Math.min(taken(k,m.id),m.times);
+      });
+      var st='none';
+      if(total>0){ if(done>=total) st='full'; else if(done>0) st='partial'; }
+      var extra='';
+      if(off===0) extra=' today';
+      if(d>now) extra=' future';
+      html+='<div class="cal-cell '+st+extra+'" data-day="'+k+'" '
+         +  'title="'+k+'  共'+total+'次，完成'+done+'次">'
+         +  '<span class="d-num">'+d.getDate()+'</span>'
+         +  '<span class="d-week">'+(off===0?'今':'日一二三四五六'[d.getDay()])+'</span>'
+         +  '</div>';
+    }
+    $grid.innerHTML=html;
+  }
+
+  // tabs 点击：切换 viewDays
+  document.querySelectorAll('.cal-tab').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      viewDays=parseInt(btn.dataset.days,10);
+      document.querySelectorAll('.cal-tab').forEach(function(b){ b.classList.remove('on'); });
+      btn.classList.add('on');
+      renderCalendar();
+    });
+  });
+
+  // 点击某天 → 弹出详情
+  document.getElementById('calGrid').addEventListener('click',function(e){
+    var cell=e.target.closest('.cal-cell');
+    if(!cell||cell.classList.contains('future')) return;
+    var day=cell.dataset.day;
+    showDayDetail(day);
+  });
+
+  function showDayDetail(day){
+    var d=new Date(day);
+    var weekday='日一二三四五六'[d.getDay()];
+    var rows='';
+    if(meds.length===0){ rows='<div style="color:var(--sub);font-size:13px">还没添加药品</div>'; }
+    meds.forEach(function(m){
+      var c=Math.min(taken(day,m.id),m.times), st='';
+      if(m.times===0) st='';
+      else if(c>=m.times) st='<span class="p-done">✓ 已完成</span>';
+      else if(c>0)       st='<span class="p-partial">'+c+'/'+m.times+'</span>';
+      else               st='<span class="p-none">未打卡</span>';
+      rows+='<div class="p-row"><span class="p-name">'+esc(m.name)+'</span>'+st+'</div>';
+    });
+    var pop=document.getElementById('dayPop');
+    pop.innerHTML='<h4><b>'+day+'</b> 星期'+weekday+'</h4>'+rows
+      +'<button class="p-close" onclick="document.getElementById(\'dayPop\').classList.remove(\'show\')">关闭</button>';
+    pop.classList.add('show');
+  }
+  // 点弹层外部或 mask 关闭
+  document.addEventListener('click',function(e){
+    var pop=document.getElementById('dayPop');
+    if(!pop.classList.contains('show')) return;
+    if(pop.contains(e.target)) return;
+    if(e.target.classList.contains('cal-cell')) return;
+    pop.classList.remove('show');
+  });
+
+  // ============ 卡牌收集 ============
+  function cardCls(h){ return h.rank<=36?'legend':'epic'; }
+  function cardHtml(h){
+    return '<div class="hw-card '+cardCls(h)+'">'
+       +  '<span class="hw-rank">第'+h.rank+'位</span>'
+       +  '<span class="hw-star">'+esc(h.star)+'</span>'
+       +  '<span class="hw-nick">'+esc(h.nick)+'</span>'
+       +  '<span class="hw-name">'+esc(h.name)+'</span>'
+       +  '</div>';
+  }
+  function updateCardEntry(){
+    var owned=load(LS_CARDS,{});
+    document.getElementById('ceProg').textContent=Object.keys(owned).length+'/'+HEROES.length;
+  }
+
+  // 每个药品单独算：某种药当天全部吃完 → 抽一张；同一天同一种药只抽一次
+  var cardQueue=[];
+  function checkDrawCard(){
+    if(!HEROES.length||!meds.length) return;
+    var key=todayKey(), draws=load(LS_DRAW,{});
+    var dayDraws=draws[key]||{};
+    var list=[];
+    meds.forEach(function(m){
+      if(dayDraws[m.id]) return;                               // 这种药今天已经抽过了
+      var c=Math.min(taken(key,m.id),m.times);
+      if(m.times>0&&c>=m.times) list.push(m);                  // 这种药今天吃完了
+    });
+    if(!list.length) return;
+    list.forEach(function(m){
+      var exist=false;
+      for(var i=0;i<cardQueue.length;i++){ if(cardQueue[i].id===m.id){ exist=true; break; } }
+      if(!exist) cardQueue.push(m);
+    });
+    drawNext();
+  }
+
+  function drawNext(){
+    var pop=document.getElementById('cardPop');
+    if(pop.classList.contains('show')) return;
+    var m=cardQueue.shift();
+    if(!m) return;
+    var key=todayKey(), draws=load(LS_DRAW,{});
+    draws[key]=draws[key]||{};
+    if(draws[key][m.id]){ drawNext(); return; }                // 已抽过，跳过
+    var c=Math.min(taken(key,m.id),m.times);
+    if(m.times<=0||c<m.times){ drawNext(); return; }           // 已被取消打卡，跳过
+
+    var owned=load(LS_CARDS,{});
+    var pool=HEROES.filter(function(h){ return !owned[h.rank]; });
+    var src=pool.length?pool:HEROES;                           // 优先未收集
+    var legends=src.filter(function(h){ return h.rank<=36; });
+    var sats=src.filter(function(h){ return h.rank>36; });
+    var arr, pick;
+    if(legends.length&&sats.length){
+      arr=Math.random()<0.25?legends:sats;                     // 天罡 25%，地煞 75%
+      pick=arr[Math.floor(Math.random()*arr.length)];
+    }else{
+      pick=src[Math.floor(Math.random()*src.length)];
+    }
+    var isNew=!owned[pick.rank];
+    owned[pick.rank]=key;
+    draws[key][m.id]=pick.rank;
+    localStorage.setItem(LS_CARDS,JSON.stringify(owned));
+    localStorage.setItem(LS_DRAW,JSON.stringify(draws));
+    showCardPop(pick,isNew,m);
+    schedulePush();                                            // 卡片入册后触发云同步
+  }
+
+  function showCardPop(h,isNew,m){
+    document.getElementById('cpTip').textContent=
+      (m?'「'+m.name+'」今日已吃完':'今日已吃完')+' · 获得好汉卡';
+    document.getElementById('cpCardBox').innerHTML=cardHtml(h);
+    document.getElementById('cpHint').textContent=isNew
+      ? '新卡入册 · 第 '+h.rank+' 位好汉'
+      : '重复卡 · 第 '+h.rank+' 位（108 将已集齐）';
+    document.getElementById('cardPop').classList.add('show');
+  }
+  document.getElementById('cpClose').addEventListener('click',function(){
+    document.getElementById('cardPop').classList.remove('show');
+    updateCardEntry();
+    drawNext();                                                // 还有其他药待抽，继续弹
+  });
 
   function toggle(id,slot){
     var key=todayKey(); records[key]=records[key]||{};
@@ -352,7 +658,8 @@
     return {sha:j.sha,raw:td.decode(Uint8Array.from(atob(j.content.replace(/\n/g,'')),function(c){return c.charCodeAt(0);}))};
   }
   async function ghPut(){
-    var body=await encStr({meds:meds,records:records,reminded:reminded},cfg.pass);
+    var body=await encStr({meds:meds,records:records,reminded:reminded,
+      cards:load(LS_CARDS,{}),draws:load(LS_DRAW,{})},cfg.pass);
     var payload={message:'打卡数据同步',content:btoa(body),branch:'main'};
     if(ghSha) payload.sha=ghSha;
     var r=await fetch('https://api.github.com/repos/'+cfg.repo+'/contents/data.enc',{
@@ -364,6 +671,20 @@
     }
     var j=await r.json(); ghSha=j.content.sha;
   }
+  // 卡牌数据合并：卡片取并集（同一位取较早日期），抽卡记录按 日期/药品 合并
+  function mergeCardsLocal(remoteCards,remoteDraws){
+    var myC=load(LS_CARDS,{}), rC=remoteCards||{}, mc={};
+    Object.keys(myC).forEach(function(k){ mc[k]=myC[k]; });
+    Object.keys(rC).forEach(function(k){ if(!mc[k]||mc[k]>rC[k]) mc[k]=rC[k]; });
+    localStorage.setItem(LS_CARDS,JSON.stringify(mc));
+
+    var myD=load(LS_DRAW,{}), rD=remoteDraws||{}, md={};
+    Object.keys(myD).concat(Object.keys(rD)).forEach(function(day){
+      md[day]=Object.assign({},myD[day]||{},rD[day]||{});
+    });
+    localStorage.setItem(LS_DRAW,JSON.stringify(md));
+  }
+
   function mergeRemote(obj){
     var remote=obj.records||{};
     Object.keys(records).concat(Object.keys(remote)).forEach(function(d){
@@ -372,6 +693,7 @@
       records[d]=m;
     });
     if(obj.reminded) reminded=obj.reminded;
+    mergeCardsLocal(obj.cards,obj.draws);
   }
   function setChip(state,msg){
     var map={ok:['ok','已同步'],busy:['busy','同步中…'],pending:['busy','待同步…'],err:['err','同步失败'],local:['','未配置']};
@@ -426,6 +748,7 @@
         }
         meds=obj.meds||[]; records=obj.records||{}; reminded=obj.reminded||{};
         meds.forEach(function(m){ if(!m.slots||!m.slots.length) m.slots=defaultSlots(m.times); });
+        mergeCardsLocal(obj.cards,obj.draws);
         saveLocal(); render();
         lastSync=pad(new Date().getHours())+':'+pad(new Date().getMinutes());
         setChip('ok',lastSync);
