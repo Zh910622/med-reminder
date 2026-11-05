@@ -31,6 +31,23 @@ function pad(n) { return n < 10 ? '0' + n : '' + n; }
 // 当前北京时间（用 UTC+8 计算，无夏令时）
 function nowCN() { return new Date(Date.now() + 8 * 3600 * 1000); }
 
+// 卡牌合并：同一位好汉取较早的获得日期
+function mergeCards(a, b) {
+  const out = Object.assign({}, a || {});
+  for (const k of Object.keys(b || {})) {
+    if (!out[k] || out[k] > b[k]) out[k] = b[k];
+  }
+  return out;
+}
+// 抽卡记录合并：按 日期/药品 取并集，避免覆盖页面新抽到的卡
+function mergeDraws(a, b) {
+  const out = {};
+  for (const day of Object.keys(Object.assign({}, a || {}, b || {}))) {
+    out[day] = Object.assign({}, (a || {})[day] || {}, (b || {})[day] || {});
+  }
+  return out;
+}
+
 async function main() {
   const pass = process.env.DATA_PASSPHRASE;
   const token = process.env.WXPUSHER_TOKEN;
@@ -125,6 +142,9 @@ async function uploadFlags(data, pass) {
         data.records[d] = m;
       }
       data.reminded = Object.assign({}, remote.reminded || {}, data.reminded || {});
+      // 卡牌数据也合并，否则会把页面新抽到的卡覆盖掉
+      data.cards = mergeCards(data.cards, remote.cards);
+      data.draws = mergeDraws(data.draws, remote.draws);
     }
     const put = await fetch(`https://api.github.com/repos/${repo}/contents/data.enc`, {
       method: 'PUT',
